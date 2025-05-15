@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Winner Announcement</title>
+<style>
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    background-size: 400% 400%;
+    background-attachment: fixed;
+    animation: gradient 15s ease infinite;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.container {
+    text-align: center;
+    width: 95%;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding-bottom: 40px;
+}
+
+.countdown {
+    font-size: 8rem;
+    margin: 20px 0;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.winner-section {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 1s ease;
+    position: relative;
+}
+
+.winner-revealed {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.winner-name {
+    font-size: 4rem;
+    margin: 20px 0;
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #f00;
+    opacity: 0;
+}
+
+.trophy {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+.title {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.certificate-section {
+    margin-top: 30px;
+    display: none;
+}
+
+.btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 10px;
+}
+
+.btn:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.certificate-preview {
+    max-width: 100%;
+    height: auto;
+    margin-top: 20px;
+    border: 3px solid gold;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.sound-section {
+    margin-top: 20px;
+    display: none;
+}
+
+.restart-btn {
+    background-color: #2196F3;
+    margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+    .countdown {
+        font-size: 5rem;
+    }
+    .winner-name {
+        font-size: 2.5rem;
+    }
+    .trophy {
+        font-size: 3rem;
+    }
+    .title {
+        font-size: 1.8rem;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1 class="title">And the Winner is...</h1>
+<div id="countdown" class="countdown">10</div>
+<div id="winner-section" class="winner-section">
+    <div class="trophy">🏆</div>
+    <h2 class="winner-name">Mehansh Patro</h2>
+    <div id="confetti-container"></div>
+</div>
+
+<div id="certificate-section" class="certificate-section">
+    <h3>Winner Certificate</h3>
+    <div>
+        <img id="certificate-preview" class="certificate-preview" src="Blue and Gold Classy Appreciation Certificate.png" alt="Certificate Preview">
+    </div>
+</div>
+
+<audio id="celebration-sound" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/bell_ring.mp3"></audio>
+
+<button id="restart" class="btn restart-btn">Restart Countdown</button>
+</div>
+
+<audio id="celebration-sound"></audio>
+
+<script>
+// Variables
+let countdownInterval;
+let confettiElements = [];
+let count = 10;
+
+// DOM Elements
+const countdownEl = document.getElementById('countdown');
+const winnerSection = document.getElementById('winner-section');
+const certificateSection = document.getElementById('certificate-section');
+const certificatePreview = document.getElementById('certificate-preview');
+const celebrationSound = document.getElementById('celebration-sound');
+const restartBtn = document.getElementById('restart');
+const confettiContainer = document.getElementById('confetti-container');
+
+// Initialize countdown
+startCountdown();
+
+// Event Listeners
+restartBtn.addEventListener('click', restartCountdown);
+
+// Functions
+function startCountdown() {
+    countdownInterval = setInterval(() => {
+        count--;
+        countdownEl.textContent = count;
+        
+        if (count <= 0) {
+            clearInterval(countdownInterval);
+            revealWinner();
+        }
+    }, 1000);
+}
+
+function revealWinner() {
+    countdownEl.style.display = 'none';
+    winnerSection.classList.add('winner-revealed');
+    certificateSection.style.display = 'block';
+    
+    // Play celebration sound
+    celebrationSound.play();
+    
+    // Create confetti
+    createConfetti();
+    
+    // Scroll to certificate section after a brief delay
+    setTimeout(() => {
+        certificateSection.scrollIntoView({ behavior: 'smooth' });
+    }, 1500);
+}
+
+function createConfetti() {
+    // Clear any existing confetti
+    confettiContainer.innerHTML = '';
+    confettiElements = [];
+    
+    // Create 100 confetti elements
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.top = -20 + 'px';
+        confetti.style.backgroundColor = getRandomColor();
+        confetti.style.width = Math.random() * 10 + 5 + 'px';
+        confetti.style.height = Math.random() * 10 + 5 + 'px';
+        confetti.style.opacity = Math.random();
+        confetti.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+        
+        confettiContainer.appendChild(confetti);
+        confettiElements.push({
+            element: confetti,
+            x: parseFloat(confetti.style.left),
+            y: parseFloat(confetti.style.top),
+            speed: 1 + Math.random() * 3,
+            rotation: Math.random() * 360,
+            rotationSpeed: Math.random() * 10 - 5
+        });
+    }
+    
+    // Animate confetti
+    animateConfetti();
+}
+
+function animateConfetti() {
+    confettiElements.forEach(confetti => {
+        confetti.y += confetti.speed;
+        confetti.rotation += confetti.rotationSpeed;
+        
+        confetti.element.style.top = confetti.y + 'px';
+        confetti.element.style.transform = 'rotate(' + confetti.rotation + 'deg)';
+        confetti.element.style.opacity = 1;
+        
+        // Remove confetti that fall out of view
+        if (confetti.y > window.innerHeight) {
+            confetti.y = -20;
+        }
+    });
+    
+    requestAnimationFrame(animateConfetti);
+}
+
+function getRandomColor() {
+    const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', 
+                   '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', 
+                   '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+
+
+function restartCountdown() {
+    // Reset everything
+    count = 10;
+    countdownEl.textContent = count;
+    countdownEl.style.display = 'block';
+    winnerSection.classList.remove('winner-revealed');
+    certificateSection.style.display = 'none';
+    
+    // Stop any playing audio
+    celebrationSound.pause();
+    celebrationSound.currentTime = 0;
+    
+    // Restart countdown
+    startCountdown();
+}
+</script>
+</body>
+</html>
